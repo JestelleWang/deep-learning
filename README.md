@@ -1,0 +1,2 @@
+# MVIG-training
+SJTU MVIG dedicates to produce not only world-class research findings but also world-class AI talents. This plan is designed for zero-based but very smart students who will join SJTU MVIG following Stanford AI lab standard. The goal of this plan is to help students to establish a solid foundation on computer vision, deep learning and deep reinforcement learning. Frequent interactions between mentors and students will be an important part of this plan.
