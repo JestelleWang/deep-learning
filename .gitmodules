@@ -1,3 +1,6 @@
 [submodule "Object Detection/py-faster-rcnn"]
 	path = Object Detection/py-faster-rcnn
 	url = https://github.com/rbgirshick/py-faster-rcnn.git
+[submodule "Pose Estimation/Realtime_Multi-Person_Pose_Estimation"]
+	path = Pose Estimation/Realtime_Multi-Person_Pose_Estimation
+	url = https://github.com/ZheC/Realtime_Multi-Person_Pose_Estimation.git
