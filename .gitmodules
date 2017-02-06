@@ -4,3 +4,12 @@
 [submodule "Pose Estimation/Realtime_Multi-Person_Pose_Estimation"]
 	path = Pose Estimation/Realtime_Multi-Person_Pose_Estimation
 	url = https://github.com/ZheC/Realtime_Multi-Person_Pose_Estimation.git
+[submodule "Multi-object Tracking/MDP_Tracking"]
+	path = Multi-object Tracking/MDP_Tracking
+	url = https://github.com/yuxng/MDP_Tracking.git
+[submodule "Object Segmentation/MNC"]
+	path = Object Segmentation/MNC
+	url = https://github.com/daijifeng001/MNC.git
+[submodule "Scene Parsing/PSPNet"]
+	path = Scene Parsing/PSPNet
+	url = https://github.com/hszhao/PSPNet.git
