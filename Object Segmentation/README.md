@@ -15,7 +15,7 @@
 
 Region Proposal Networks (RPNs)
 
-> see this in Object Detection
+See this <a href="https://github.com/Faldict/MVIG-training-DL/tree/master/Object%20Detection">here</a>.
 
 ### regressing mask-level instances
 
