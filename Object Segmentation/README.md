@@ -45,3 +45,26 @@ Given a box predicted by stage 1, extract a fea- ture by RoI pooling. This featu
 See this here.
 
 > B. Hariharan, P. Arbela ́ez, R. Girshick, and J. Malik. Simul-taneous detection and segmentation. In ECCV. 2014.
+
+## Segment Label
+
+One of the most important problems is how to acquire datasets. The other day, I happened to help a friend drawing dots of object's mask. Now I'd like to write down the code in MATLAB.
+
+```
+img= imread([pics_path, pics_dir(i).name]);
+gt{i}.img = pics_dir(i).name;
+[x1, y1, z1]=size(img);
+gt{i}.mask = zeros(x1, y1);
+cnt = 0;
+char_flag = input('end?(1 or 0)');
+while char_flag~= 1
+    cnt = cnt+1;
+    bw = roipoly(img);
+    bw = bw*cnt;
+    char_flag = input('end?(1 or 0)');
+end
+mask = gt{i}.mask;
+save([object_name,'ground_truth/', pics_dir(i).name,'.mat'], 'mask');
+```
+
+I think it is even hard for a person to segment the image accurately. So it is amazing that AI can deal with the problem with more than 90% accuracy rate.
