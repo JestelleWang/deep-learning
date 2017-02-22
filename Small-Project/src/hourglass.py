@@ -4,6 +4,7 @@ conv = nn.SpatialConvolution.SpatialConvolution
 batchnorm = nn.SpatialBatchNormalization.SpatialBatchNormalization
 relu = nn.ReLU.ReLU
 
+
 # Main convlutional block
 def convBlock(numIn, numOut):
     return nn.Sequential()                                      \
@@ -17,6 +18,7 @@ def convBlock(numIn, numOut):
         .add(relu(True))                                        \
         .add(conv(numOut / 2, numOut, 1, 1))
 
+
 # Skip layer
 def skipLayer(numIn, numOut):
     if numIn == numOut:
@@ -24,34 +26,79 @@ def skipLayer(numIn, numOut):
     else:
         return nn.Sequential().add(conv(numIn, numOut, 1, 1))
 
+
 # Residual block
 def Residual(numIn, numOut):
     return nn.Sequential()                                      \
-        .add(nn.ConcatTable()                                   \
-            .add(convBlock(numIn, numOut))                      \
-            .add(skiplayer(numIn, numOut)))                     \
+        .add(nn.ConcatTable()
+            .add(convBlock(numIn, numOut))
+            .add(skipLayer(numIn, numOut)))                     \
         .add(nn.CAddTable(True))
 
+
 # Hourglass
-def hourglass(n, f, inp):
-    # Upper branch
-    up1 = inp
-    for i in range(nModules):
-        up1 = Residual(f, f)(up1)
-    low1 = nn.SpatialMaxPooling(2,2,2,2)(inp)
-    for i in range(nModules):
-        low1 = Residual(f,f)(low1)
+def hourglass(n, numIn, numOut, inp):
+    up1 = Residual(numIn, 256)(inp)
+    up2 = Residual(256, 256)(up1)
+    up4 = Residual(256, numOut)(up2)
 
-    if n > 1:
-        low2 = hourglass(n-1, f, low1)
-    else:
-        low2 = low1
-        for i in range(nModules):
-            low2 = Residual(f,f)(low2)
+    pool = nn.SpatialMaxPooling(2, 2, 2, 2)(inp)
+    low1 = Residual(numIn, 256)(pool)
+    low2 = Residual(256, 256)(low1)
+    low5 = Residual(256, 256)(low2)
+    low6 = hourglass(n - 1, 256, numOut, low5) if n > 1 else Residual(256, numOut)(low5)
 
-    low3 = low2
-    for i in range(nModules):
-        low3 = Residual(f,f)(low3)
-    up2 = nn.SpatialUpSamplintNearest(2)(low3)
+    low7 = Residual(numOut, numOut)(low6)
+    up5 = nn.SpatialUpSamplingNearest(2)(low7)
 
-    return nn.CaddTable()([up1, up2])
+    return nn.CaddTable()([up4, up5])
+
+
+def lin(numIn, numOut, inp):
+    # Apply 1x1 convolution, stide 1, no padding
+    l_ = nn.SaptialConvolution(numIn, numOut, 1, 1, 1, 1, 0, 0)(inp)
+    return nn.ReLU(True)(nn.SpatialBatchNormalization(numOut)(l_))
+
+
+def createModel():
+    inp = nn.Identity()()
+
+    # Initial processing of the image
+    cnv1_ = nn.SpatialConvolution(3, 64, 7, 7, 2, 2, 3, 3)(inp)
+    cnv1 = nn.ReLU(True)(nn.SpatialBatchNormalization(64)(cnv1_))
+    r1 = Residual(64, 128)(cnv1)
+    pool = nn.SpatialMaxPooling(2, 2, 2, 2)(r1)
+    r4 = Residual(128, 128)(pool)
+    r5 = Residual(128, 128)(r4)
+    r6 = Residual(128, 256)(r5)
+
+    # First hourglass
+    hg1 = hourglass(4, 256, 512, r6)
+
+    # Linear layers to produce first set of predictions
+    l1 = lin(512, 512, hg1)
+    l2 = lin(512, 256, l1)
+
+    # First predicted heatmaps
+    out1 = nn.SpatialConvolution(256, outputDim[1][1], 1, 1, 1, 1, 1, 0, 0)(l2)
+    out1_ = nn.SpatialConvolution(outputDim[1][1], 256 + 128, 1, 1, 1, 1, 0, 0)(out1)
+
+    # Concatenate with previous linear features
+    cat1 = nn.JoinTable(2)([l2, pool])
+    cat1_ = nn.SpatialConvolution(256 + 128, 256 + 128, 1, 1, 1, 1, 0, 0)(cat1)
+    int1 = nn.CaddTable()([cat1_, out1_])
+
+    # Second hourglass
+    hg2 = hourglass(4, 256 + 128, 512, int1)
+
+    # Linear layers to produce predictions again
+    l3 = lin(512, 512, hg2)
+    l4 = lin(512, 512, l3)
+
+    # Output heatmaps
+    out2 = nnlib.SpatialConvolution(512, outputDim[2][1], 1, 1, 1, 1, 0, 0)(l4)
+
+    # Final Model
+    model = nn.gModule([inp], [out1, out2])
+
+    return model
