@@ -16,5 +16,16 @@ The network use a single pipeline with skip layers to preserve spatial informati
 
 The hourglass is set up as follows: Convolutional and max pooling layers are used to process features down to a very low resolution. At each max pooling step, the network branches off and applies more convolutions at the original pre-pooled resolution. After reaching the lowest resolution, the network begins the top-down sequence of upsampling and combination of features across scales. The topology of the hourglass is symmetric, so for every layer present on the way down there is a corresponding layer going up.
 
-### Layer Implementation
+## Data Access
+
+Download the segmentation masks <a href="http://www.stat.ucla.edu/~xianjie.chen/pascal_part_dataset/pascal_part.html">here</a>. But it can't be used to train the network directly. You should preprecess it at first.  
+
+At first, extract the **person category** images from <a href="http://host.robots.ox.ac.uk/pascal/VOC/voc2010/">PASCAL VOC 2010</a>. I write a script to handle this. It is at `script` folder and named `person_ctg.pl`. After modifying the file paths you print following command to run it:
+
+
+```
+perl person_ctg.pl
+``` 
+
+Then you will extract the person category images. The next step you should turn the masks into JPEGPictures. 
 
