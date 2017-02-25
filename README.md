@@ -19,4 +19,4 @@ Object Detection is the base, the others develop in different directions. Pose E
 
 I think it is an combination of one model and another dataset. That's to say, it uses the model in a paper to train some other datasets. I don't know if it is reliability in math.  
 
-I am interested in rewriting this <a href="https://github.com/anewell/pose-hg-train">code</a> by *pyTorch*. But time is limited, maybe I would fail.
+I am interested in rewriting this <a href="https://github.com/anewell/pose-hg-train">code</a> by *pyTorch*. Finally I finish a version that may be not so mature. It can train the data but I haven't write validate code because of limited time. 
