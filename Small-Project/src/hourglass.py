@@ -1,8 +1,33 @@
+import numpy as np 
+from scipy.io import loadmat
+
 import torch.nn as nn
+
+# DEFINE ENVIRONMENT VARIABLES
+ANNOTATION_PATH = '../data/Annotations_Part'
+
 
 conv = nn.SpatialConvolution.SpatialConvolution
 batchnorm = nn.SpatialBatchNormalization.SpatialBatchNormalization
 relu = nn.ReLU.ReLU
+
+# define person segmention. You can define it according to your demands.
+# To simplify the problem I just define five organs.
+classes = {
+    'head' : 0, 
+    'llarm': 1, 
+    'luarm': 1,
+    'lhand': 1,
+    'rlarm': 2,
+    'ruarm': 2,
+    'rhand': 2, 
+    'llleg': 3,
+    'lrleg': 3,
+    'lfoot': 3, 
+    'rlleg': 4,
+    'ruleg': 4,
+    'rfoot': 4
+}
 
 
 # Main convlutional block
@@ -102,3 +127,34 @@ def createModel():
     model = nn.gModule([inp], [out1, out2])
 
     return model
+
+
+# load the annotations
+def loadAnno(number):
+    filename = ANNOTATION_PATH + str(number) + '.mat'
+    data = loadmat(filename)
+    persons = filter(lambda x: x['class'] == 'person', data['anno']['objects'][0][0][0])
+    annotations = []
+    for person in persons:
+        parts = person['parts'][0]
+        annotation = np.zeros(5)
+        for part in parts:
+            part_name =  part['part_name'][0]
+            if part_name in classes:
+                if annotation[part_time] == 0:
+                    annotation[classes[part_name]] = part['mask']
+                else:
+                    annotation[classes[part_name]] += part['mask']
+        annotations.append(annotation)
+    return annotations
+
+        
+
+
+
+
+
+
+
+
+    
