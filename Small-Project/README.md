@@ -27,5 +27,6 @@ At first, extract the **person category** images from <a href="http://host.robot
 perl person_ctg.pl
 ``` 
 
-Then you will extract the person category images. The next step you should turn the masks into JPEGPictures. 
+Then you will extract the person category images. I get a bit more than 1000 pictures which are well to train. Also I have got a list of this images, used in training code.  
 
+Another troublesome problem is how to deal with annotations in `.mat` format. Because my code is written in `python`, so I use `scipy.io.loadmat` to read the file and load the annotations. The format transfered by `scipy` is strange, but I don't come up with more smart measure.

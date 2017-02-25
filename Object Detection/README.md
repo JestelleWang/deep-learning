@@ -37,5 +37,6 @@ Three ways for training networks with features shared:
 - **Approximate joint training.** The RPN and Fast R-CNN networks are merged into one network during training. In each SGD iteration, the forward pass generates region proposals which are treated just like fixed, pre-computed proposals when training a Fast R-CNN detector. The backward propagation takes place as usual, where for the shared layers the backward propagated signals from both the RPN loss and the Fast R-CNN loss are combined. 
 - **Non-approximate joint training.** Use an RoI pooling layer that is defferentiable w.r.t the box coordinates.
 
-> TODO J. Dai, K. He, and J. Sun, “Instance-aware semantic segmenta- tion via multi-task network cascades,” arXiv:1512.04412, 2015.
+> **TODO** 
+> J. Dai, K. He, and J. Sun, “Instance-aware semantic segmenta- tion via multi-task network cascades,” arXiv:1512.04412, 2015.
 
