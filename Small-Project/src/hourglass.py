@@ -209,21 +209,4 @@ def main():
         for person in persons:
             number = person[:-1]
             train(number, model, criterion, optimizer, epoch)
-            
-
-
-
-
-
-
-
-        
-
-
-
-
-
-
-
-
-    
+   
