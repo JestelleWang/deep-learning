@@ -1,10 +1,19 @@
+#!/usr/bin/env python
+import time
+
 import numpy as np 
 from scipy.io import loadmat
+import cv2
 
+import torch
 import torch.nn as nn
 
 # DEFINE ENVIRONMENT VARIABLES
 ANNOTATION_PATH = '../data/Annotations_Part'
+PERSON_LIST = '../data/person_category.txt'
+IMAGE_PATH = '../data/Images'
+TRAIN_EPOCH = 1000
+LR = 0.1
 
 
 conv = nn.SpatialConvolution.SpatialConvolution
@@ -134,19 +143,79 @@ def loadAnno(number):
     filename = ANNOTATION_PATH + str(number) + '.mat'
     data = loadmat(filename)
     persons = filter(lambda x: x['class'] == 'person', data['anno']['objects'][0][0][0])
-    annotations = []
+    annotations = np.zeros(5)
     for person in persons:
         parts = person['parts'][0]
-        annotation = np.zeros(5)
         for part in parts:
             part_name =  part['part_name'][0]
             if part_name in classes:
-                if annotation[part_time] == 0:
-                    annotation[classes[part_name]] = part['mask']
+                if annotations[part_time] == 0:
+                    annotations[classes[part_name]] = part['mask']
                 else:
-                    annotation[classes[part_name]] += part['mask']
-        annotations.append(annotation)
+                    annotations[classes[part_name]] += part['mask']
     return annotations
+
+
+# load the images
+def loadImage(number):
+    filename = IMAGE_PATH + str(number) + '.jpg'
+    img = cv2.imread(filename)
+    res = cv2.resize(img, (256, 256))
+    return torch.from_numpy(res).float()
+
+
+def train(number, model, criterion, optimizer, epoch):
+    start = time.time()
+
+    # load data
+    anno = loadAnno(number)
+    img = loadImage(number)
+
+    input_var = torch.autograd.Variable(img)
+    target_var = torch.autograd.Variable(anno)
+
+    # compute output
+    output = model(input_var)
+    loss = criterion(output, target_var)
+
+    # compute gradient and do SGD step
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+    end = time.time()
+    print "Training Epoch: %s Image: %s Time: %s\n" % (epoch, number, end - start)
+
+
+def adjust_learning_rate(optimizer, epoch):
+    """sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
+    lr = LR * (0.1 ** (epoch // 30))
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
+
+def main():
+    person_file = open(PERSON_LIST, 'r')
+    persons = person_file.readlines()
+
+    model = createModel()
+
+    # define loss function and optimizer
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.SGD(model.parameters(), LR)
+
+    for epoch in TRAIN_EPOCH:
+        adjust_learning_rate(optimizer, epoch)
+        for person in persons:
+            number = person[:-1]
+            train(number, model, criterion, optimizer, epoch)
+            
+
+
+
+
+
+
 
         
 
